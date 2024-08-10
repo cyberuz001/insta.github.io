@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Instagram Video Fetcher</title>
+    <script>
+        async function fetchVideo() {
+            const url = document.getElementById('video-url').value;
+            const chatId = 'YOUR_TELEGRAM_CHAT_ID'; // Telegram chat ID here
+
+            try {
+                const response = await fetch('/get_video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Show video on the web app
+                    document.getElementById('video').src = data.video_url;
+                    document.getElementById('video').style.display = 'block';
+
+                    // Send video URL to Telegram bot
+                    await fetch('/webhook', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            video_url: data.video_url
+                        })
+                    });
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                alert('An error occurred: ' + error.message);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Instagram Video Fetcher</h1>
+    <input type="text" id="video-url" placeholder="Enter Instagram Video URL" />
+    <button onclick="fetchVideo()">Fetch Video</button>
+    <br />
+    <video id="video" controls style="display:none;width:100%;max-width:600px;"></video>
+</body>
+</html>
