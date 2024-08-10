@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Video Bot</title>
+    <title>Video URL Yuborish</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,9 +14,6 @@
             height: 100vh;
             margin: 0;
             background-color: #f4f4f4;
-        }
-        h1 {
-            color: #333;
         }
         #videoForm {
             background: #fff;
@@ -56,7 +53,6 @@
     </style>
 </head>
 <body>
-    <h1>Instagram Video Bot</h1>
     <form id="videoForm">
         <label for="videoUrl">Instagram Video URL:</label>
         <input type="text" id="videoUrl" name="videoUrl" required>
@@ -64,23 +60,31 @@
     </form>
     <p id="responseMessage"></p>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Web Appni initializatsiya qilish
         window.addEventListener('load', () => {
-            window.Telegram.WebApp.ready();
+            const { Telegram } = window;
+            if (Telegram && Telegram.WebApp) {
+                const chatId = Telegram.WebApp.initDataUnsafe?.user?.id;
+                if (chatId) {
+                    document.getElementById('videoForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const videoUrl = document.getElementById('videoUrl').value;
+                        sendVideoUrlToServer(chatId, videoUrl);
+                    });
+                }
+            }
         });
 
-        function submitVideoUrl() {
-            const videoUrl = document.getElementById('videoUrl').value;
-            
-            fetch('https://api.telegram.org/bot<YOUR_BOT_TOKEN>/sendMessage', {
+        function sendVideoUrlToServer(chatId, videoUrl) {
+            fetch('https://your-server-url/send-video-url', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    chat_id: '<YOUR_CHAT_ID>',
-                    text: `Foydalanuvchi tomonidan yuborilgan video URL: ${videoUrl}`
+                    chat_id: chatId,
+                    video_url: videoUrl
                 })
             }).then(response => response.json())
               .then(data => {
@@ -92,13 +96,6 @@
                   console.error('Error:', error);
               });
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('videoForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                submitVideoUrl();
-            });
-        });
     </script>
 </body>
 </html>
